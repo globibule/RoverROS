@@ -136,11 +136,12 @@ def setRCArm():
 if __name__ == '__main__':
 	#try:
 		print("Program starts")
+		arm()
+		time.sleep(2)
 		rospy.init_node('semiAutoControl', anonymous=True)
 		#setRCArm()
-		arm()
-		#time.sleep(3)
 		subscribeToData()
+		rospy.on_shutdown(disarm)
 		rospy.spin() #prevent from exiting
 
 
