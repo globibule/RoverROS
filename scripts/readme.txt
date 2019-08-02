@@ -5,6 +5,6 @@
 5. In terminal: roslaunch mavros px4.launch
 6. Arm with remote control
 7. In terminal: roslaunch rover_protospace rover.launch
-8. Try with keyboard
+8. Try with keyboard in terminal where you launch rover.launch
 
 Note: to edit program, use rosed roverprotospace control.py
