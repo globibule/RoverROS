@@ -18,10 +18,15 @@ exec_time = 1/25;
 ThrottleChannel = 2
 SteeringChannel = 0
 
-throttleTrimPWM = 1500	#trim values
+throttleTrimPWM = 1500	#trim PWM
+throttleMinPWM  = 1100  #min PWM
+throttleMaxPWM  = 1800	#max PWM
+throttleMultPWM = 20 	#multiplication
+
 steeringTrimPWM = 1500
-throttleMultPWM = 60 	#multiplication params
-steeringMultPWM = 60
+steeringMinPWM  = 1100
+steeringMaxPWM  = 1800
+steeringMultPWM = 20
 
 RCOverride = [1500, 1500, 1000, 1500, 1000, 1500, 1500, 1500]
 
@@ -86,12 +91,27 @@ def getRange2(data):
 def getTeleop(data):
 	setRCOverrideTeleop(data.linear.x, data.angular.z)
 
+def constraintRC(channel, min, max):
+	global RCOverride
+
+	if(RCOverride[channel]<min):
+		RCOverride[channel]=min
+
+	if(RCOverride[channel]>max):
+		RCOverride[channel]=max
+
 def setRCOverrideTeleop(throttleInput, steeringInput):
+	global RCOverride
 	pub = rospy.Publisher('/mavros/rc/override', OverrideRCIn, queue_size=1)
 	rate = rospy.Rate(10)
 	flag = True
-	RCOverride[ThrottleChannel] = throttleTrimPWM - int(throttleInput)*throttleMultPWM
-	RCOverride[SteeringChannel] = steeringTrimPWM - int(steeringInput)*steeringMultPWM
+	prevThrottleChannel = RCOverride[ThrottleChannel]
+	prevSteeringChannel = RCOverride[SteeringChannel]
+	RCOverride[ThrottleChannel] = prevThrottleChannel - int(throttleInput)*throttleMultPWM
+	RCOverride[SteeringChannel] = prevSteeringChannel - int(steeringInput)*steeringMultPWM
+
+	constraintRC(ThrottleChannel, throttleMinPWM, throttleMaxPWM)
+	constraintRC(SteeringChannel, steeringMinPWM, steeringMaxPWM)
 
 	#if obstacle is too close, avoid forward/backward movement
 	if(rangeUltrasonicFront < 0.6):
