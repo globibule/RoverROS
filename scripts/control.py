@@ -33,6 +33,9 @@ RCOverride = [1500, 1500, 1000, 1500, 1000, 1500, 1500, 1500]
 rangeUltrasonicFront = 4
 rangeUltrasonicBack  = 4
 
+def map(input, fromLow, fromHigh, toLow, toHigh):
+	return (input - fromLow)/(fromHigh - fromLow)*(toHigh-toLow)+toLow;
+
 def setMode():
 	print("Set mode")
 	rospy.wait_for_service('/mavros/set_mode')
@@ -70,9 +73,9 @@ def subscribeToData():
 	print("Subscribing")
 	#rospy.Subscriber("/mavros/imu/data", Imu, getIMU)
 	#rospy.Subscriber("/mavros/rc/in", RCIn, getRC)
-	rospy.Subscriber("/ultrasound1", Range, getRange1)
+	#rospy.Subscriber("/ultrasound1", Range, getRange1)
 	#rospy.Subscriber("/ultrasound2", Range, getRange2)
-	rospy.Subscriber("/turtle1/cmd_vel", Twist, getTeleop)
+	rospy.Subscriber("/positionControl", Twist, getTeleop)
 
 def getIMU(data):
 	print(data);
@@ -105,10 +108,8 @@ def setRCOverrideTeleop(throttleInput, steeringInput):
 	pub = rospy.Publisher('/mavros/rc/override', OverrideRCIn, queue_size=1)
 	rate = rospy.Rate(10)
 	flag = True
-	prevThrottleChannel = RCOverride[ThrottleChannel]
-	prevSteeringChannel = RCOverride[SteeringChannel]
-	RCOverride[ThrottleChannel] = prevThrottleChannel - int(throttleInput)*throttleMultPWM
-	RCOverride[SteeringChannel] = prevSteeringChannel - int(steeringInput)*steeringMultPWM
+	RCOverride[ThrottleChannel] = map(throttleInput, -25, 25, 1200, 1800)
+	RCOverride[SteeringChannel] = map(steeringInput, -25, 25, 1200, 1800)
 
 	constraintRC(ThrottleChannel, throttleMinPWM, throttleMaxPWM)
 	constraintRC(SteeringChannel, steeringMinPWM, steeringMaxPWM)
@@ -125,7 +126,6 @@ def setRCOverrideTeleop(throttleInput, steeringInput):
 	while not rospy.is_shutdown() and flag:
 		flag = False
 		pub.publish(RCOverride)
-		#pub.publish(RCOverride)
 		rate.sleep()
 
 def setRCArm():
@@ -137,9 +137,9 @@ if __name__ == '__main__':
 	#try:
 		print("Program starts")
 		arm()
+		setMode()
 		time.sleep(2)
 		rospy.init_node('semiAutoControl', anonymous=True)
-		#setRCArm()
 		subscribeToData()
 		rospy.on_shutdown(disarm)
 		rospy.spin() #prevent from exiting
