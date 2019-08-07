@@ -59,7 +59,6 @@ def arm():
 		print("Service call failed: %s" %e)
 
 def disarm():
-	print("Set disarming")
 	rospy.wait_for_service('/mavros/cmd/arming')
 	try:
 		armService = rospy.ServiceProxy('/mavros/cmd/arming', CommandBool)
@@ -73,8 +72,8 @@ def subscribeToData():
 	print("Subscribing")
 	#rospy.Subscriber("/mavros/imu/data", Imu, getIMU)
 	#rospy.Subscriber("/mavros/rc/in", RCIn, getRC)
-	#rospy.Subscriber("/ultrasound1", Range, getRange1)
-	#rospy.Subscriber("/ultrasound2", Range, getRange2)
+	rospy.Subscriber("/ultrasound1", Range, getRange1)
+	rospy.Subscriber("/ultrasound2", Range, getRange2)
 	rospy.Subscriber("/positionControl", Twist, getTeleop)
 
 def getIMU(data):
@@ -143,7 +142,6 @@ if __name__ == '__main__':
 		subscribeToData()
 		rospy.on_shutdown(disarm)
 		rospy.spin() #prevent from exiting
-
 
 	#except rospy.ROSInterrupException:
 	#	pass
