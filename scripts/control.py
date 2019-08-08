@@ -3,6 +3,7 @@
 import rospy
 from sensor_msgs.msg import Imu
 from std_msgs.msg import Float64
+from std_msgs.msg import Bool
 from mavros_msgs.msg import OverrideRCIn
 from mavros_msgs.msg import RCIn
 from mavros_msgs.srv import SetMode, CommandBool, CommandTOL
@@ -75,6 +76,10 @@ def subscribeToData():
 	rospy.Subscriber("/ultrasound1", Range, getRange1)
 	rospy.Subscriber("/ultrasound2", Range, getRange2)
 	rospy.Subscriber("/positionControl", Twist, getTeleop)
+	rospy.Subscriber("/armCommand", Bool, getArmCommand)
+
+def getArmCommand(msg):
+	print(msg.data)
 
 def getIMU(data):
 	print(data);
