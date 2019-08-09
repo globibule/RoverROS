@@ -55,10 +55,10 @@ def arm():
 		armService = rospy.ServiceProxy('/mavros/cmd/arming', CommandBool)
 		armResponse = armService(True)
 		rospy.loginfo(armResponse)
-		print("Armed")
+		setMode()
+
 	except rospy.ServiceException as e:
 		print("Service call failed: %s" %e)
-
 def disarm():
 	rospy.wait_for_service('/mavros/cmd/arming')
 	try:
@@ -79,7 +79,11 @@ def subscribeToData():
 	rospy.Subscriber("/armCommand", Bool, getArmCommand)
 
 def getArmCommand(msg):
-	print(msg.data)
+	armed = msg.data
+	if(armed):
+		arm()
+	elif(not armed):
+		disarm()
 
 def getIMU(data):
 	print(data);
@@ -140,7 +144,6 @@ def setRCArm():
 if __name__ == '__main__':
 	#try:
 		print("Program starts")
-		arm()
 		setMode()
 		time.sleep(2)
 		rospy.init_node('semiAutoControl', anonymous=True)
