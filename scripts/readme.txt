@@ -5,6 +5,6 @@
 5. In terminal: roslaunch mavros px4.launch //including serial_node.py
 6. Arm with remote control
 7. In terminal: rosrun rover_protospace control.py
-8. Try with keyboard in terminal where you launch rover.launch
+8. Try to move the rover by running the [GUI](https://github.com/globibule/controllerGUIRaspi) on another ROS enabled device
 
 Note: to edit program, use rosed roverprotospace control.py
